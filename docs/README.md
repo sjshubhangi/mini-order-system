@@ -39,12 +39,12 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 
 SMTP Mail
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
+MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=your_mailtrap_username
-MAIL_PASSWORD=your_mailtrap_password
+MAIL_USERNAME=your_gmail_address@gmail.com
+MAIL_PASSWORD=your_app_password
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=no-reply@miniorder.local
+MAIL_FROM_ADDRESS=your_gmail_address@gmail.com
 MAIL_FROM_NAME="Mini Order System"
 
 Queue & Cache
@@ -117,37 +117,61 @@ Cache
 ------------------------------------------------------------
 📬 Email Notifications
 
-- Configured via SMTP (Mailtrap for testing)
+- Configured via SMTP (Gmail App Password)
 - Sends order confirmation emails to customers asynchronously
-- Rate-limited on free Mailtrap plans → throttle jobs or upgrade plan
+- Rate-limited on Gmail → throttle jobs or upgrade to Google Workspace
 
 ------------------------------------------------------------
 📊 Database Design (ERD)
 
-Users
-- id, name, email, password, role (admin, vendor, customer)
+This system uses Laravel 10 with Passport authentication and queues. The database includes core entities, job tracking, and OAuth tables.
 
-Products
-- id, name, description, price, stock, image_key, vendor_id
+Entities:
+- users
+  - id (PK), name, email, password, role (admin, vendor, customer), timestamps
+- products
+  - id (PK), name, description, price, stock, image_key, vendor_id (FK → users.id), deleted_at, timestamps
+- orders
+  - id (PK), product_id (FK → products.id), customer_id (FK → users.id), quantity, status (pending, completed), timestamps
+- jobs
+  - id (PK), queue, payload, attempts, reserved_at, available_at, created_at
+- failed_jobs
+  - id (PK), uuid, connection, queue, payload, exception, failed_at
+- password_reset_tokens
+  - email, token, created_at
+- personal_access_tokens
+  - id (PK), tokenable_type, tokenable_id, name, token, abilities, last_used_at, expires_at, timestamps
 
-Orders
-- id, product_id, customer_id, quantity, status (pending, confirmed)
-
-Jobs
-- Laravel queue jobs table
-
-Cache
-- Redis/file cache store
+Passport OAuth Tables:
+- oauth_clients
+  - id (PK), user_id (FK → users.id), name, secret, redirect, personal_access_client, password_client, revoked, timestamps
+- oauth_access_tokens
+  - id (PK), user_id (FK → users.id), client_id (FK → oauth_clients.id), name, scopes, revoked, timestamps, expires_at
+- oauth_refresh_tokens
+  - id (PK), access_token_id (FK → oauth_access_tokens.id), revoked, expires_at
+- oauth_auth_codes
+  - id (PK), user_id (FK → users.id), client_id (FK → oauth_clients.id), scopes, revoked, expires_at
+- oauth_personal_access_clients
+  - id (PK), client_id (FK → oauth_clients.id), timestamps
 
 Relationships:
-- users (vendor) → products
-- users (customer) → orders
-- products → orders
+- users → products (vendor_id)
+- users → orders (customer_id)
+- products → orders (product_id)
+- users → oauth_clients
+- oauth_clients → oauth_access_tokens
+- oauth_access_tokens → oauth_refresh_tokens
+- users → oauth_auth_codes
+- oauth_clients → oauth_auth_codes
+
+Visual ERD diagram:
+- Refer to /docs/erd.png for the complete entity-relationship diagram.
+
 
 ------------------------------------------------------------
 📚 API Documentation
 
-- Full API endpoints are provided in the Postman collection (/mini-order-system/mini-order.postman_collection.json)
+- Full API endpoints are provided in the Postman collection (/docs/mini-order.postman_collection.json)
 - Import into Postman to test authentication, product management, and order workflows
 
 ------------------------------------------------------------

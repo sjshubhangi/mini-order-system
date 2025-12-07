@@ -34,4 +34,14 @@ class Handler extends ExceptionHandler
     {
         return response()->json(['message' => 'Unauthenticated.'], 401);
     }
+
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof ModelNotFoundException) {
+            return response()->json(['error' => 'Resource not found'], 404);
+        }
+
+        return parent::render($request, $e);
+    }
+
 }
