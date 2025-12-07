@@ -164,8 +164,9 @@ Relationships:
 - users → oauth_auth_codes
 - oauth_clients → oauth_auth_codes
 
-Visual ERD diagram:
-- Refer to /docs/erd.png for the complete entity-relationship diagram.
+SQL Dump:
+- For database schema reference, the full SQL dump has been included in the repository.  
+You can find it here: /docs/mini_order.sql
 
 
 ------------------------------------------------------------
