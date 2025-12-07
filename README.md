@@ -147,7 +147,7 @@ Relationships:
 ------------------------------------------------------------
 📚 API Documentation
 
-- Full API endpoints are provided in the Postman collection (/docs/postman_collection.json)
+- Full API endpoints are provided in the Postman collection (/mini-order-system/mini-order.postman_collection.json)
 - Import into Postman to test authentication, product management, and order workflows
 
 ------------------------------------------------------------
